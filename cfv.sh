@@ -1,12 +1,18 @@
 #!/bin/bash
 
 function sfv_check {
-    if [ -d "$1" ]; then
-        dirname="$1"
-    elif [ -f "$1" ]; then
-        dirname=$(dirname "$1")
+    if [ -r "$1" ]; then
+        if [ -d "$1" ]; then
+            dirname="$1"
+        elif [ -f "$1" ]; then
+            dirname=$(dirname "$1")
+        else
+            zenity --error --text="Unknown file type: $1"
+            exit 1
+        fi
     else
-        zenity --error --text="Invalid file or directory: $1"
+        zenity --error --text="Read permission denied for: $1"
+        exit 2
     fi
 
     cfv -r -s --progress no -p "$dirname" | tee /tmp/cfv.log | zenity --progress --auto-close --auto-kill --text="Checking $dirname"
